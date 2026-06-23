@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0a0d14">
+<title>Globex OS · Sign in</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./globex_i18n.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#0a0d14;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.card{background:#111520;border:1px solid rgba(245,166,35,.2);border-radius:16px;padding:30px 28px;width:100%;max-width:390px;margin:16px}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:22px}
+.logo{display:flex;align-items:center;gap:10px}
+.ldot{width:10px;height:10px;border-radius:50%;background:#f5a623;box-shadow:0 0 10px #f5a623;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}
+.ltx{font-size:16px;font-weight:700}
+.lsub{font-size:10px;color:#475569;letter-spacing:.5px;text-transform:uppercase}
+h1{font-size:22px;font-weight:800;margin-bottom:6px;color:#f5a623}
+.sub{font-size:12px;color:#94a3b8;margin-bottom:24px;line-height:1.6}
+.lf{margin-bottom:14px}
+.ll{display:block;font-size:12px;color:#94a3b8;margin-bottom:6px;font-weight:500}
+input{width:100%;background:#161c2e;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;font-size:14px;color:#e2e8f0;outline:none;font-family:inherit;direction:ltr;text-align:left;transition:border-color .2s}
+input:focus{border-color:#f5a623}
+input::placeholder{color:#475569}
+.btn{width:100%;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;transition:opacity .15s}
+.btn-main{background:#f5a623;color:#000}
+.btn-main:active,.btn-main:disabled{opacity:.7}
+.btn-sec{background:transparent;border:1px solid rgba(255,255,255,.1);color:#94a3b8;margin-top:12px}
+.btn-sec:hover{border-color:#f5a623;color:#f5a623}
+.err{background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);border-radius:8px;padding:10px 12px;font-size:12px;color:#ff4757;margin-top:10px;display:none;line-height:1.5}
+.ok{background:rgba(46,213,115,.1);border:1px solid rgba(46,213,115,.3);border-radius:8px;padding:10px 12px;font-size:12px;color:#2ed573;margin-top:10px;display:none;line-height:1.5}
+.warn{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.35);border-radius:8px;padding:11px 13px;font-size:12px;color:#f5a623;margin-bottom:18px;line-height:1.7;display:none}
+.sep{display:flex;align-items:center;gap:10px;margin:18px 0;color:#475569;font-size:11px}
+.sep::before,.sep::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.back{font-size:12px;color:#f5a623;cursor:pointer;margin-top:14px;text-align:center;display:block}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:s .6s linear infinite;vertical-align:middle;margin:0 6px}
+@keyframes s{to{transform:rotate(360deg)}}
+#step-reset{display:none}
+.ver{font-size:10px;color:#2d3748;text-align:center;margin-top:20px}
+/* language switch uses GX_I18N injected styles; override colors to match gold theme */
+.gx-lang-switch{background:rgba(255,255,255,.05) !important;border-color:rgba(255,255,255,.12) !important}
+.gx-lang-switch button.on{background:#f5a623 !important;color:#000 !important}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="toprow">
+    <div class="logo">
+      <div class="ldot"></div>
+      <div><div class="ltx" data-i18n="app_name">Globex OS</div><div class="lsub" data-i18n="app_sub">Persian Horizon · Dubai</div></div>
+    </div>
+    <div id="langHost"></div>
+  </div>
+
+  <div class="warn" id="cfg-warn" data-i18n="not_configured"></div>
+
+  <!-- SIGN IN -->
+  <div id="step-login">
+    <h1 data-i18n="login_title">Sign in</h1>
+    <div class="sub" data-i18n="login_sub">Access is set by your organizational role.</div>
+    <div class="lf">
+      <label class="ll" data-i18n="email">Email</label>
+      <input id="email" type="email" placeholder="name@globex.ae" autocomplete="email">
+    </div>
+    <div class="lf">
+      <label class="ll" data-i18n="password">Password</label>
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-main" id="btn-login" onclick="doLogin()" data-i18n="sign_in">Sign in</button>
+    <div class="err" id="err-login"></div>
+    <div class="sep">·</div>
+    <button class="btn btn-sec" onclick="showReset()" data-i18n="forgot">Forgot password?</button>
+  </div>
+
+  <!-- RESET -->
+  <div id="step-reset">
+    <h1 data-i18n="reset_title">Reset password</h1>
+    <div class="sub" data-i18n="reset_sub">A reset link will be sent to your email.</div>
+    <div class="lf">
+      <label class="ll" data-i18n="email">Email</label>
+      <input id="reset-email" type="email" placeholder="name@globex.ae">
+    </div>
+    <button class="btn btn-main" id="btn-reset" onclick="doReset()" data-i18n="send_link">Send link</button>
+    <div class="err" id="err-reset"></div>
+    <div class="ok" id="ok-reset">✅</div>
+    <span class="back" onclick="showLogin()" data-i18n="back_to_login">← Back to sign in</span>
+  </div>
+
+  <div class="ver">Globex OS · v5.0 · 2026</div>
+</div>
+
+<script>
+// ─── CONFIG ── Meftah: fill these two (Supabase → Settings → API). Same values in index.html + reset-confirm.html.
+const SUPABASE_URL  = 'https://xqnrazhcmrytjdfruiye.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxbnJhemhjbXJ5dGpkZnJ1aXllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NjIzMjgsImV4cCI6MjA5NzUzODMyOH0.eI7o9YDJxNzg0p1NXoD_KAWEVKHf6YsLoA3Zhi9xZrw';        // anon/public key — safe in the browser
+const DASHBOARD_URL = './index.html';
+
+const NOT_CONFIGURED = SUPABASE_URL.includes('YOUR_PROJECT') || SUPABASE_KEY.includes('YOUR_ANON');
+let sb = null;
+
+window.addEventListener('DOMContentLoaded', async () => {
+  // i18n: English default, EN/AR/FA switch, auto RTL/LTR
+  GX_I18N.init();
+  document.getElementById('langHost').innerHTML = GX_I18N.switcherHTML();
+  GX_I18N.onChange(() => { GX_I18N._syncSwitch(); refreshResetOk(); });
+  refreshResetOk();
+
+  if (NOT_CONFIGURED) { document.getElementById('cfg-warn').style.display = 'block'; return; }
+  if (typeof supabase === 'undefined') { showErr('err-login', GX_I18N.t('err_network')); return; }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) window.location.replace(DASHBOARD_URL);
+  } catch (e) {}
+});
+
+function refreshResetOk(){
+  const ok = document.getElementById('ok-reset');
+  ok.textContent = '✅ ' + (GX_I18N.lang()==='en' ? 'Reset email sent. Check your inbox.' : GX_I18N.lang()==='ar' ? 'تم إرسال رابط إعادة التعيين. تفقّد بريدك.' : 'ایمیل بازیابی ارسال شد. صندوق ورودی را بررسی کنید.');
+}
+
+async function doLogin() {
+  hide('err-login');
+  if (NOT_CONFIGURED) { showErr('err-login', GX_I18N.t('not_configured')); return; }
+  if (!sb) { showErr('err-login', GX_I18N.t('err_network')); return; }
+  const email = document.getElementById('email').value.trim();
+  const pass  = document.getElementById('password').value;
+  const btn   = document.getElementById('btn-login');
+  if (!email || !pass) { showErr('err-login', GX_I18N.t('err_credentials')); return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  let data, error;
+  try { ({ data, error } = await sb.auth.signInWithPassword({ email, password: pass })); }
+  catch (e) { error = { message: GX_I18N.t('err_network') }; }
+  btn.disabled = false; btn.textContent = GX_I18N.t('sign_in');
+  if (error) {
+    const m = error.message || '';
+    const msg = m.includes('Invalid login') ? GX_I18N.t('err_credentials')
+              : m.includes('Email not confirmed') ? GX_I18N.t('err_unconfirmed')
+              : m;
+    showErr('err-login', msg); return;
+  }
+  // language already saved by GX_I18N; dashboard will read it
+  window.location.replace(DASHBOARD_URL);
+}
+
+async function doReset() {
+  hide('err-reset'); document.getElementById('ok-reset').style.display = 'none';
+  if (NOT_CONFIGURED || !sb) { showErr('err-reset', GX_I18N.t('not_configured')); return; }
+  const email = document.getElementById('reset-email').value.trim();
+  const btn = document.getElementById('btn-reset');
+  if (!email) { showErr('err-reset', GX_I18N.t('email')); return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  let error;
+  try { ({ error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/reset-confirm.html' })); }
+  catch (e) { error = { message: GX_I18N.t('err_network') }; }
+  btn.disabled = false; btn.textContent = GX_I18N.t('send_link');
+  if (error) { showErr('err-reset', error.message); return; }
+  document.getElementById('ok-reset').style.display = 'block';
+}
+
+function showErr(id, msg){ const el=document.getElementById(id); el.textContent=msg; el.style.display='block'; }
+function hide(id){ document.getElementById(id).style.display='none'; }
+function showReset(){ document.getElementById('step-login').style.display='none'; document.getElementById('step-reset').style.display='block'; }
+function showLogin(){ document.getElementById('step-reset').style.display='none'; document.getElementById('step-login').style.display='block'; }
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  document.getElementById('step-reset').style.display === 'block' ? doReset() : doLogin();
+});
+</script>
+</body>
+</html>
