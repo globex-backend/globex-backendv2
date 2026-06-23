@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Globex — Business Marketplace</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#0f1830; --bg3:#16223f; --border:#22325c; --border2:#2b3e6e;
+    --text:#eaf0ff; --text2:#aebbdc; --text3:#7588b4; --accent:#3b82f6; --accent2:#60a5fa;
+    --green:#34d399; --amber:#f5a623; --red:#f87171; --font:'Segoe UI',system-ui,-apple-system,Tahoma,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:linear-gradient(180deg,#0b1220,#0d1530 60%,#0b1220);color:var(--text);font-family:var(--font);min-height:100vh;line-height:1.6}
+  html[dir="rtl"] body{font-family:'Segoe UI',Tahoma,'Iranian Sans',Arial,sans-serif}
+  .wrap{max-width:920px;margin:0 auto;padding:22px 18px 60px}
+  .top{display:flex;justify-content:space-between;align-items:center;padding:6px 0 24px}
+  .brand{font-size:20px;font-weight:800;letter-spacing:.5px}
+  .brand span{color:var(--accent2)}
+  .langs{display:flex;gap:6px}
+  .langs button{background:var(--bg3);border:0.5px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--font)}
+  .langs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .hero{text-align:center;padding:18px 0 28px}
+  .hero h1{font-size:30px;font-weight:800;line-height:1.3;margin-bottom:10px}
+  .hero p{color:var(--text2);font-size:15px;max-width:620px;margin:0 auto}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 26px}
+  @media(max-width:680px){.cards{grid-template-columns:1fr}.hero h1{font-size:24px}}
+  .card{background:var(--bg2);border:0.5px solid var(--border);border-radius:16px;padding:22px 18px;cursor:pointer;transition:.15s;text-align:center}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card.sel{border-color:var(--accent);background:var(--bg3)}
+  .card .ic{font-size:30px;margin-bottom:8px}
+  .card h3{font-size:16px;font-weight:700;margin-bottom:5px}
+  .card p{font-size:12.5px;color:var(--text3);line-height:1.55}
+  .form{background:var(--bg2);border:0.5px solid var(--border);border-radius:16px;padding:22px;display:none}
+  .form.show{display:block}
+  .form h2{font-size:18px;font-weight:700;margin-bottom:4px}
+  .form .sub{font-size:13px;color:var(--text3);margin-bottom:16px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:11px}
+  .field{flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:12px;color:var(--text2)}
+  .field input,.field select,.field textarea{background:var(--bg3);border:0.5px solid var(--border2);border-radius:9px;padding:11px 13px;font-size:14px;color:var(--text);font-family:var(--font);width:100%}
+  .field textarea{resize:vertical;min-height:74px}
+  .submit{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);width:100%;margin-top:8px}
+  .submit:hover{background:var(--accent2)}
+  .msg{font-size:13.5px;margin-top:12px;text-align:center}
+  .ok-box{display:none;text-align:center;padding:30px 20px}
+  .ok-box.show{display:block}
+  .ok-box .big{font-size:46px;margin-bottom:10px}
+  .ok-box h2{font-size:20px;margin-bottom:6px}
+  .ok-box p{color:var(--text2);font-size:14px}
+  .ok-box button{margin-top:18px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--text);border-radius:9px;padding:10px 20px;font-size:13px;cursor:pointer;font-family:var(--font)}
+  .legal{font-size:11.5px;color:var(--text3);text-align:center;margin-top:22px;line-height:1.7}
+  .priv{background:var(--bg3);border:0.5px dashed var(--border2);border-radius:10px;padding:11px 14px;font-size:11.5px;color:var(--text3);margin-top:14px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">GLOBEX <span>·</span> <span id="t-brandsub">Business Marketplace</span></div>
+    <div class="langs">
+      <button data-lang="en" class="on" onclick="setLang('en')">EN</button>
+      <button data-lang="ar" onclick="setLang('ar')">عربي</button>
+      <button data-lang="fa" onclick="setLang('fa')">فارسی</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1 id="t-herotitle">Buy, sell or invest in a business</h1>
+    <p id="t-herosub">Tell us what you're looking for. Our team reviews every submission and gets back to you privately.</p>
+  </div>
+
+  <div class="cards" id="cards">
+    <div class="card" data-role="seller" onclick="pick('seller')">
+      <div class="ic">🏷️</div><h3 id="t-c-seller">Sell a business</h3><p id="t-c-seller-d">List your business with or without documents. We value it and find buyers.</p>
+    </div>
+    <div class="card" data-role="buyer" onclick="pick('buyer')">
+      <div class="ic">🛒</div><h3 id="t-c-buyer">Buy a business</h3><p id="t-c-buyer-d">Tell us your budget and sector. We match you with vetted opportunities.</p>
+    </div>
+    <div class="card" data-role="investor" onclick="pick('investor')">
+      <div class="ic">📈</div><h3 id="t-c-investor">Invest / partner</h3><p id="t-c-investor-d">Put capital to work or partner in a growing business.</p>
+    </div>
+  </div>
+
+  <!-- SELLER -->
+  <div class="form" id="form-seller">
+    <h2 id="t-fs-title">Sell a business</h2>
+    <div class="sub" id="t-fs-sub">No documents needed to start — we can value on estimate first.</div>
+    <div class="row">
+      <div class="field"><label id="t-l-name">Your name</label><input id="s-name"></div>
+      <div class="field"><label id="t-l-contact">Phone / email</label><input id="s-contact"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label id="t-l-bizname">Business name</label><input id="s-biz"></div>
+      <div class="field"><label id="t-l-sector">Sector</label><input id="s-sector"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label id="t-l-ask">Asking price (AED)</label><input id="s-ask" type="number"></div>
+      <div class="field"><label id="t-l-rev">Annual revenue (AED)</label><input id="s-rev" type="number"></div>
+      <div class="field"><label id="t-l-docs">Documents?</label>
+        <select id="s-docs"><option value="no" id="t-o-nodocs">No docs (estimate)</option><option value="yes" id="t-o-yesdocs">Has docs</option></select>
+      </div>
+    </div>
+    <div class="row"><div class="field"><label id="t-l-note">Anything else</label><textarea id="s-note"></textarea></div></div>
+    <button class="submit" onclick="submitForm('seller')" id="t-fs-btn">Submit</button>
+    <div class="msg" id="msg-seller"></div>
+  </div>
+
+  <!-- BUYER -->
+  <div class="form" id="form-buyer">
+    <h2 id="t-fb-title">Buy a business</h2>
+    <div class="sub" id="t-fb-sub">We'll match you with vetted, often exclusive opportunities.</div>
+    <div class="row">
+      <div class="field"><label class="t-l-name2">Your name</label><input id="b-name"></div>
+      <div class="field"><label class="t-l-contact2">Phone / email</label><input id="b-contact"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label class="t-l-sector2">Sector of interest</label><input id="b-sector"></div>
+      <div class="field"><label id="t-l-budget">Budget (AED)</label><input id="b-budget" type="number"></div>
+    </div>
+    <div class="row"><div class="field"><label class="t-l-note2">What are you looking for</label><textarea id="b-note"></textarea></div></div>
+    <button class="submit" onclick="submitForm('buyer')" id="t-fb-btn">Submit</button>
+    <div class="msg" id="msg-buyer"></div>
+  </div>
+
+  <!-- INVESTOR -->
+  <div class="form" id="form-investor">
+    <h2 id="t-fi-title">Invest / partner</h2>
+    <div class="sub" id="t-fi-sub">Deploy capital or partner in a growing business.</div>
+    <div class="row">
+      <div class="field"><label class="t-l-name3">Your name</label><input id="i-name"></div>
+      <div class="field"><label class="t-l-contact3">Phone / email</label><input id="i-contact"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label id="t-l-amount">Amount available (AED)</label><input id="i-amount" type="number"></div>
+      <div class="field"><label id="t-l-region">Preferred sector / region</label><input id="i-region"></div>
+    </div>
+    <div class="row"><div class="field"><label class="t-l-note3">Your goals</label><textarea id="i-note"></textarea></div></div>
+    <button class="submit" onclick="submitForm('investor')" id="t-fi-btn">Submit</button>
+    <div class="msg" id="msg-investor"></div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="ok-box" id="okbox">
+    <div class="big">✅</div>
+    <h2 id="t-ok-title">Thank you — received.</h2>
+    <p id="t-ok-sub">Our team will review your submission and contact you privately.</p>
+    <button onclick="resetPortal()" id="t-ok-btn">Submit another</button>
+  </div>
+
+  <div class="priv" id="t-priv">Your details are sent securely to the Globex team only and are not shared publicly. By submitting you consent to be contacted about your request.</div>
+  <div class="legal" id="t-legal">Globex Business Marketplace · Dubai, UAE. This is an intake form, not a financial promotion or investment advice. Listings are subject to verification and signed agreements.</div>
+</div>
+
+<script>
+// ---- CONFIG: Meftah fills these (anon/public key only) ----
+const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
+const SUPABASE_KEY = "YOUR-PUBLIC-ANON-KEY";
+let sb=null;
+try{ if(window.supabase && SUPABASE_URL.indexOf('YOUR-')<0){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);} }catch(e){}
+
+// ---- minimal trilingual dictionary ----
+const T={
+  'brandsub':{en:'Business Marketplace',ar:'سوق الأعمال',fa:'بازارِ کسب‌وکار'},
+  'herotitle':{en:'Buy, sell or invest in a business',ar:'اشترِ، بِع أو استثمر في عمل',fa:'کسب‌وکار بخر، بفروش یا سرمایه‌گذاری کن'},
+  'herosub':{en:"Tell us what you're looking for. Our team reviews every submission and gets back to you privately.",ar:'أخبرنا بما تبحث عنه. يراجع فريقنا كل طلب ويتواصل معك بسرية.',fa:'بگو دنبالِ چه هستی. تیمِ ما هر درخواست را بررسی می‌کند و به‌صورتِ خصوصی با تو تماس می‌گیرد.'},
+  'c-seller':{en:'Sell a business',ar:'بيع عمل',fa:'فروشِ کسب‌وکار'},
+  'c-seller-d':{en:'List your business with or without documents. We value it and find buyers.',ar:'أدرج عملك بمستندات أو بدونها. نقيّمه ونجد المشترين.',fa:'کسب‌وکارت را با یا بدونِ مدرک ثبت کن. ارزش‌گذاری می‌کنیم و خریدار پیدا می‌کنیم.'},
+  'c-buyer':{en:'Buy a business',ar:'شراء عمل',fa:'خریدِ کسب‌وکار'},
+  'c-buyer-d':{en:'Tell us your budget and sector. We match you with vetted opportunities.',ar:'أخبرنا بميزانيتك وقطاعك. نطابقك مع فرص موثوقة.',fa:'بودجه و حوزه‌ات را بگو. با فرصت‌های بررسی‌شده تطبیقت می‌دهیم.'},
+  'c-investor':{en:'Invest / partner',ar:'استثمر / شارك',fa:'سرمایه‌گذاری / شراکت'},
+  'c-investor-d':{en:'Put capital to work or partner in a growing business.',ar:'وظّف رأس مالك أو شارك في عمل نامٍ.',fa:'سرمایه‌ات را به کار بینداز یا در کسب‌وکارِ روبه‌رشد شریک شو.'},
+  // seller form
+  'fs-title':{en:'Sell a business',ar:'بيع عمل',fa:'فروشِ کسب‌وکار'},
+  'fs-sub':{en:'No documents needed to start — we can value on estimate first.',ar:'لا حاجة لمستندات للبدء — يمكننا التقييم بالتقدير أولاً.',fa:'برای شروع مدرک لازم نیست — اول می‌توانیم تخمینی ارزش‌گذاری کنیم.'},
+  'l-name':{en:'Your name',ar:'اسمك',fa:'نامِ شما'},
+  'l-contact':{en:'Phone / email',ar:'هاتف / بريد',fa:'تلفن / ایمیل'},
+  'l-bizname':{en:'Business name',ar:'اسم العمل',fa:'نامِ کسب‌وکار'},
+  'l-sector':{en:'Sector',ar:'القطاع',fa:'حوزه'},
+  'l-ask':{en:'Asking price (AED)',ar:'السعر المطلوب (درهم)',fa:'قیمتِ پیشنهادی (درهم)'},
+  'l-rev':{en:'Annual revenue (AED)',ar:'الإيراد السنوي (درهم)',fa:'درآمد سالانه (درهم)'},
+  'l-docs':{en:'Documents?',ar:'مستندات؟',fa:'مدرک؟'},
+  'o-nodocs':{en:'No docs (estimate)',ar:'بدون مستندات (تقدير)',fa:'بدون مدرک (تخمین)'},
+  'o-yesdocs':{en:'Has docs',ar:'لديه مستندات',fa:'مدرک دارد'},
+  'l-note':{en:'Anything else',ar:'أي شيء آخر',fa:'توضیحِ دیگر'},
+  'fs-btn':{en:'Submit',ar:'إرسال',fa:'ارسال'},
+  // buyer
+  'fb-title':{en:'Buy a business',ar:'شراء عمل',fa:'خریدِ کسب‌وکار'},
+  'fb-sub':{en:"We'll match you with vetted, often exclusive opportunities.",ar:'سنطابقك مع فرص موثوقة وحصرية غالبًا.',fa:'با فرصت‌های بررسی‌شده و اغلب انحصاری تطبیقت می‌دهیم.'},
+  'l-budget':{en:'Budget (AED)',ar:'الميزانية (درهم)',fa:'بودجه (درهم)'},
+  'fb-btn':{en:'Submit',ar:'إرسال',fa:'ارسال'},
+  // investor
+  'fi-title':{en:'Invest / partner',ar:'استثمر / شارك',fa:'سرمایه‌گذاری / شراکت'},
+  'fi-sub':{en:'Deploy capital or partner in a growing business.',ar:'وظّف رأس المال أو شارك في عمل نامٍ.',fa:'سرمایه را به کار بینداز یا در کسب‌وکارِ روبه‌رشد شریک شو.'},
+  'l-amount':{en:'Amount available (AED)',ar:'المبلغ المتاح (درهم)',fa:'مبلغِ موجود (درهم)'},
+  'l-region':{en:'Preferred sector / region',ar:'القطاع / المنطقة المفضلة',fa:'حوزه / منطقه‌ی موردنظر'},
+  'fi-btn':{en:'Submit',ar:'إرسال',fa:'ارسال'},
+  // shared note labels
+  'l-name2':{en:'Your name',ar:'اسمك',fa:'نامِ شما'},
+  'l-contact2':{en:'Phone / email',ar:'هاتف / بريد',fa:'تلفن / ایمیل'},
+  'l-sector2':{en:'Sector of interest',ar:'القطاع المهتم به',fa:'حوزه‌ی موردِ علاقه'},
+  'l-note2':{en:'What are you looking for',ar:'عمّا تبحث',fa:'دنبالِ چه هستی'},
+  'l-name3':{en:'Your name',ar:'اسمك',fa:'نامِ شما'},
+  'l-contact3':{en:'Phone / email',ar:'هاتف / بريد',fa:'تلفن / ایمیل'},
+  'l-note3':{en:'Your goals',ar:'أهدافك',fa:'اهدافِ شما'},
+  // ok
+  'ok-title':{en:'Thank you — received.',ar:'شكرًا — تم الاستلام.',fa:'ممنون — دریافت شد.'},
+  'ok-sub':{en:'Our team will review your submission and contact you privately.',ar:'سيراجع فريقنا طلبك ويتواصل معك بسرية.',fa:'تیمِ ما درخواستت را بررسی می‌کند و به‌صورتِ خصوصی تماس می‌گیرد.'},
+  'ok-btn':{en:'Submit another',ar:'إرسال آخر',fa:'ارسالِ دیگر'},
+  'priv':{en:'Your details are sent securely to the Globex team only and are not shared publicly. By submitting you consent to be contacted about your request.',ar:'تُرسل بياناتك بأمان إلى فريق غلوبكس فقط ولا تُنشر. بالإرسال توافق على التواصل معك بخصوص طلبك.',fa:'اطلاعاتت فقط به‌صورتِ امن به تیمِ گلوبکس می‌رود و عمومی نمی‌شود. با ارسال، رضایت می‌دهی درباره‌ی درخواستت با تو تماس گرفته شود.'},
+  'legal':{en:'Globex Business Marketplace · Dubai, UAE. This is an intake form, not a financial promotion or investment advice. Listings are subject to verification and signed agreements.',ar:'سوق غلوبكس للأعمال · دبي. هذا نموذج استقبال وليس ترويجًا ماليًا أو نصيحة استثمارية. القوائم تخضع للتحقق والاتفاقيات الموقعة.',fa:'بازارِ کسب‌وکارِ گلوبکس · دبی، امارات. این یک فرمِ ثبت است، نه تبلیغِ مالی یا مشاوره‌ی سرمایه‌گذاری. آگهی‌ها مشروط به بررسی و قراردادِ امضاشده‌اند.'},
+  'submitting':{en:'Submitting…',ar:'جارٍ الإرسال…',fa:'در حالِ ارسال…'},
+  'need':{en:'Please enter your name and contact.',ar:'يرجى إدخال الاسم وجهة الاتصال.',fa:'لطفاً نام و راهِ تماس را وارد کن.'},
+  'failed':{en:'Could not submit — please try again or contact us directly.',ar:'تعذّر الإرسال — حاول مرة أخرى.',fa:'ارسال نشد — دوباره تلاش کن یا مستقیم تماس بگیر.'},
+  'noconn':{en:'Portal not connected yet (admin must set the keys).',ar:'لم يتم ربط البوابة بعد.',fa:'پورتال هنوز وصل نشده (مدیر باید کلیدها را بگذارد).'}
+};
+let LANG='en';
+const RTL={ar:true,fa:true};
+function tt(k){ return (T[k]&&T[k][LANG])||(T[k]&&T[k].en)||''; }
+function setLang(l){
+  LANG=l;
+  document.documentElement.lang=l;
+  document.documentElement.dir=RTL[l]?'rtl':'ltr';
+  document.querySelectorAll('.langs button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-lang')===l);});
+  // id-based
+  Object.keys(T).forEach(function(k){ var el=document.getElementById('t-'+k); if(el) el.textContent=tt(k); });
+  // class-based shared labels
+  [['t-l-name2','l-name2'],['t-l-contact2','l-contact2'],['t-l-sector2','l-sector2'],['t-l-note2','l-note2'],['t-l-name3','l-name3'],['t-l-contact3','l-contact3'],['t-l-note3','l-note3']].forEach(function(p){ var el=document.querySelector('.'+p[0]); if(el)el.textContent=tt(p[1]); });
+}
+let CURRENT=null;
+function pick(role){
+  CURRENT=role;
+  document.querySelectorAll('.card').forEach(function(c){c.classList.toggle('sel',c.getAttribute('data-role')===role);});
+  ['seller','buyer','investor'].forEach(function(r){ document.getElementById('form-'+r).classList.toggle('show',r===role); });
+  document.getElementById('okbox').classList.remove('show');
+  document.getElementById('form-'+role).scrollIntoView({behavior:'smooth',block:'start'});
+}
+function val(id){ var el=document.getElementById(id); return el?(el.value||'').trim():''; }
+async function submitForm(role){
+  var msg=document.getElementById('msg-'+role); msg.style.color='var(--text3)';
+  var name=val(role[0]+'-name'), contact=val(role[0]+'-contact');
+  if(!name||!contact){ msg.style.color='var(--amber)'; msg.textContent=tt('need'); return; }
+  var attrs={kind:'public_intake',role:role,name:name,contact:contact,lang:LANG,ts:new Date().toISOString()};
+  if(role==='seller'){ attrs.biz=val('s-biz'); attrs.sector=val('s-sector'); attrs.ask=Number(val('s-ask')||0); attrs.revenue=Number(val('s-rev')||0); attrs.has_docs=(val('s-docs')==='yes'); attrs.note=val('s-note'); }
+  if(role==='buyer'){ attrs.sector=val('b-sector'); attrs.budget=Number(val('b-budget')||0); attrs.note=val('b-note'); }
+  if(role==='investor'){ attrs.amount=Number(val('i-amount')||0); attrs.region=val('i-region'); attrs.note=val('i-note'); }
+  if(!sb){ msg.style.color='var(--amber)'; msg.textContent=tt('noconn'); return; }
+  msg.textContent=tt('submitting');
+  try{
+    var r=await sb.from('entity').insert({type:'public_intake',unit:'mna',status:'open',attributes:attrs});
+    if(r.error) throw r.error;
+    document.querySelectorAll('.form').forEach(function(f){f.classList.remove('show');});
+    document.querySelectorAll('.card').forEach(function(c){c.classList.remove('sel');});
+    document.getElementById('okbox').classList.add('show');
+    document.getElementById('okbox').scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(e){ msg.style.color='var(--red)'; msg.textContent=tt('failed'); }
+}
+function resetPortal(){
+  document.getElementById('okbox').classList.remove('show');
+  ['seller','buyer','investor'].forEach(function(r){ ['name','contact','biz','sector','ask','rev','docs','note','budget','amount','region'].forEach(function(f){ var el=document.getElementById(r[0]+'-'+f); if(el&&el.tagName!=='SELECT')el.value=''; }); });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+setLang('en');
+</script>
+</body>
+</html>

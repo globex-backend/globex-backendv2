@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Globex — Monitoring Consent / إقرار موافقة / رضایت‌نامه</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;padding:24px;line-height:1.7}
+.sheet{background:#fff;max-width:820px;margin:0 auto;padding:40px 44px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.bar{max-width:820px;margin:0 auto 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.btns button{font:inherit;font-size:13px;font-weight:700;border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;margin-inline-start:6px}
+.btns button.lang.on{background:#111827;color:#fff;border-color:#111827}
+.print{background:#f5a623 !important;color:#000 !important;border-color:#f5a623 !important}
+h1{font-size:21px;margin-bottom:4px}
+.sub{color:#6b7280;font-size:13px;margin-bottom:20px}
+h2{font-size:15px;margin:18px 0 6px;color:#b45309}
+p,li{font-size:13.5px;color:#374151}
+ul{margin:6px 22px}
+.row{display:flex;gap:24px;margin-top:28px;flex-wrap:wrap}
+.fld{flex:1;min-width:220px}
+.fld .ln{border-bottom:1px solid #9ca3af;height:34px;margin-bottom:4px}
+.fld label{font-size:12px;color:#6b7280}
+.note{background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 14px;font-size:12.5px;color:#9a3412;margin-top:18px}
+.foot{margin-top:24px;font-size:11px;color:#9ca3af;text-align:center}
+[dir=rtl]{text-align:right}
+@media print{.bar{display:none}body{background:#fff;padding:0}.sheet{box-shadow:none;max-width:100%}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="btns">
+    <button class="lang on" data-l="en" onclick="setL('en')">EN</button>
+    <button class="lang" data-l="ar" onclick="setL('ar')">AR</button>
+    <button class="lang" data-l="fa" onclick="setL('fa')">FA</button>
+  </div>
+  <div class="btns"><button class="print" onclick="window.print()">🖨 Print</button></div>
+</div>
+<div class="sheet" id="sheet"></div>
+
+<script>
+const C = {
+  en: {
+    dir:'ltr',
+    title:'Employee Consent — Workplace Monitoring',
+    sub:'Globex / Persian Horizon · Dubai, UAE',
+    s_purpose:'Purpose',
+    p_purpose:'Globex uses workplace cameras and activity logs to protect staff and assets, ensure service quality, and improve operations. This form records your informed consent, as required under UAE Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data (PDPL).',
+    s_scope:'What is collected',
+    scope:['Video footage in work areas (not in private areas such as restrooms or prayer rooms).','Activity/idle-time logs tied to work systems during working hours.','Call recordings where applicable, with separate notice.'],
+    s_use:'How it is used',
+    use:['Security, safety, dispute resolution, and quality/operations review.','Access is limited to authorized managers; data is retained only as long as needed.','Data is not sold or shared except as required by law.'],
+    s_rights:'Your rights',
+    rights:['You may request access to, or correction of, your personal data.','You may withdraw consent for non-essential monitoring; some security monitoring may continue where legally permitted.','You may raise concerns with management without retaliation.'],
+    s_consent:'Consent',
+    consent:'I confirm I have read and understood the above, and I consent to workplace monitoring as described.',
+    f_name:'Employee name', f_id:'Emirates ID / Staff no.', f_sign:'Signature', f_date:'Date',
+    note:'This is a template for legal readiness. Have it reviewed by a UAE-qualified lawyer before use. Monitoring must not begin before signed consent and clear notice.',
+    foot:'Globex OS · consent record · keep a signed copy in the employee file'
+  },
+  ar: {
+    dir:'rtl',
+    title:'إقرار موافقة الموظف — المراقبة في مكان العمل',
+    sub:'جلوبكس / بيرشن هورايزن · دبي، الإمارات',
+    s_purpose:'الغرض',
+    p_purpose:'تستخدم جلوبكس كاميرات وسجلات نشاط في مكان العمل لحماية الموظفين والأصول وضمان جودة الخدمة وتحسين العمليات. يوثّق هذا النموذج موافقتك المستنيرة وفقًا للمرسوم بقانون اتحادي رقم ٤٥ لسنة ٢٠٢١ بشأن حماية البيانات الشخصية (PDPL).',
+    s_scope:'ما يتم جمعه',
+    scope:['لقطات فيديو في مناطق العمل (وليس في المناطق الخاصة كدورات المياه أو غرف الصلاة).','سجلات النشاط/وقت الخمول المرتبطة بأنظمة العمل خلال ساعات العمل.','تسجيلات المكالمات عند الاقتضاء، بإشعار منفصل.'],
+    s_use:'كيفية الاستخدام',
+    use:['الأمن والسلامة وحل النزاعات ومراجعة الجودة/العمليات.','الوصول مقصور على المدراء المخوّلين؛ وتُحفظ البيانات للمدة اللازمة فقط.','لا تُباع البيانات أو تُشارك إلا وفق ما يتطلبه القانون.'],
+    s_rights:'حقوقك',
+    rights:['يمكنك طلب الوصول إلى بياناتك الشخصية أو تصحيحها.','يمكنك سحب الموافقة على المراقبة غير الضرورية؛ وقد تستمر بعض المراقبة الأمنية حيثما يسمح القانون.','يمكنك إبداء مخاوفك للإدارة دون أي إجراء انتقامي.'],
+    s_consent:'الموافقة',
+    consent:'أؤكد أنني قرأت وفهمت ما سبق، وأوافق على المراقبة في مكان العمل كما هو موضّح.',
+    f_name:'اسم الموظف', f_id:'الهوية الإماراتية / الرقم الوظيفي', f_sign:'التوقيع', f_date:'التاريخ',
+    note:'هذا نموذج للجاهزية القانونية. يُراجَع من محامٍ مؤهل في الإمارات قبل الاستخدام. لا يجوز بدء المراقبة قبل الموافقة الموقّعة والإشعار الواضح.',
+    foot:'جلوبكس · سجل موافقة · احتفظ بنسخة موقّعة في ملف الموظف'
+  },
+  fa: {
+    dir:'rtl',
+    title:'رضایت‌نامه‌ی کارمند — پایش در محل کار',
+    sub:'گلوبکس / پرشین هورایزن · دبی، امارات',
+    s_purpose:'هدف',
+    p_purpose:'گلوبکس از دوربین و گزارش فعالیت در محل کار برای حفاظت از نیروها و دارایی‌ها، تضمین کیفیت خدمات و بهبود عملیات استفاده می‌کند. این فرم رضایتِ آگاهانه‌ی شما را ثبت می‌کند، طبق قانون فدرال شماره ۴۵ سال ۲۰۲۱ امارات در حفاظت از داده‌های شخصی (PDPL).',
+    s_scope:'چه چیزی جمع‌آوری می‌شود',
+    scope:['تصویر دوربین در محیط‌های کاری (نه در فضاهای خصوصی مثل سرویس بهداشتی یا نمازخانه).','گزارش فعالیت/زمان بیکاری مرتبط با سیستم‌های کاری در ساعات کار.','ضبط تماس در صورت لزوم، با اطلاع‌رسانی جداگانه.'],
+    s_use:'چگونه استفاده می‌شود',
+    use:['امنیت، ایمنی، حل اختلاف، و بازبینی کیفیت/عملیات.','دسترسی فقط برای مدیرانِ مجاز؛ داده فقط تا زمانِ لازم نگه‌داری می‌شود.','داده فروخته یا به اشتراک گذاشته نمی‌شود مگر طبق الزام قانون.'],
+    s_rights:'حقوق شما',
+    rights:['می‌توانید دسترسی به داده‌ی شخصی خود یا اصلاح آن را درخواست کنید.','می‌توانید رضایت برای پایشِ غیرضروری را پس بگیرید؛ برخی پایش‌های امنیتی ممکن است در حدِ مجازِ قانون ادامه یابد.','می‌توانید نگرانی‌تان را بدون ترسِ از تبعات به مدیریت بگویید.'],
+    s_consent:'رضایت',
+    consent:'تأیید می‌کنم موارد بالا را خوانده و فهمیده‌ام، و با پایش در محل کار به‌شرحِ گفته‌شده موافقم.',
+    f_name:'نام کارمند', f_id:'امارات‌آیدی / شماره پرسنلی', f_sign:'امضا', f_date:'تاریخ',
+    note:'این یک نمونه برای آمادگیِ قانونی است. قبل از استفاده، یک وکیلِ دارای صلاحیت در امارات بازبینی‌اش کند. پایش نباید قبل از رضایتِ امضاشده و اطلاع‌رسانیِ روشن شروع شود.',
+    foot:'گلوبکس · سند رضایت · یک نسخه‌ی امضاشده در پرونده‌ی کارمند نگه دارید'
+  }
+};
+
+function setL(l){
+  document.querySelectorAll('.lang').forEach(b=>b.classList.toggle('on', b.dataset.l===l));
+  const t=C[l]; const root=document.documentElement;
+  root.setAttribute('lang',l); root.setAttribute('dir',t.dir);
+  const ul=a=>'<ul>'+a.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+  document.getElementById('sheet').innerHTML =
+    '<h1>'+t.title+'</h1><div class="sub">'+t.sub+'</div>'+
+    '<h2>'+t.s_purpose+'</h2><p>'+t.p_purpose+'</p>'+
+    '<h2>'+t.s_scope+'</h2>'+ul(t.scope)+
+    '<h2>'+t.s_use+'</h2>'+ul(t.use)+
+    '<h2>'+t.s_rights+'</h2>'+ul(t.rights)+
+    '<h2>'+t.s_consent+'</h2><p>'+t.consent+'</p>'+
+    '<div class="row"><div class="fld"><div class="ln"></div><label>'+t.f_name+'</label></div><div class="fld"><div class="ln"></div><label>'+t.f_id+'</label></div></div>'+
+    '<div class="row"><div class="fld"><div class="ln"></div><label>'+t.f_sign+'</label></div><div class="fld"><div class="ln"></div><label>'+t.f_date+'</label></div></div>'+
+    '<div class="note">'+t.note+'</div>'+
+    '<div class="foot">'+t.foot+'</div>';
+}
+setL('en');
+</script>
+</body>
+</html>
